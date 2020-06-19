@@ -49,9 +49,6 @@ public class Amnesia : MonoBehaviour {
 
     void Start() {
       CrazyTalkWithAK = Bomb.GetTime();
-      /*if (LunchTime == 1) {
-        GetComponent<KMBombModule>().HandlePass();
-      }*/
     }
 
     void RyanPress(KMSelectable Ryan){
@@ -130,10 +127,13 @@ public class Amnesia : MonoBehaviour {
       }
       LunchTime = Bomb.GetSolvableModuleNames().Count;
       TheArena = Bomb.GetSolvedModuleNames().Count;
+      if (LunchTime == 1) {
+        GetComponent<KMBombModule>().HandlePass();
+      }
       if (Bomb.GetTime() * 4 <= CrazyTalkWithAK || TheArena * 2 >= LunchTime) {
         Alchemy();
       }
-      else if ((int)Math.Floor(Bomb.GetTime()) % 60 == 0 && MinecraftSurvival == false) {
+      else if ((int)Math.Floor(Bomb.GetTime()) % 60 == 0 && MinecraftSurvival == false && Bomb.GetTime() != CrazyTalkWithAK) {
         StartCoroutine(MinecraftParody());
         DirectionalButton = UnityEngine.Random.Range(0,4);
         while (DirectionalButton == OmegaForget) {
@@ -175,6 +175,31 @@ public class Amnesia : MonoBehaviour {
       for (int i = 0; i < GoofysGame.Count(); i++) {
         TimingIsEverything.GetComponent<MeshRenderer>().material = Romping[GoofysGame[i]];
         yield return new WaitForSecondsRealtime(.33f);
+      }
+    }
+    //I add the twitch play
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} submit 123 to submit 123. Do !{0} cycle to cycle stages (only when you have struck four times).";
+    #pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command){
+      if (Regex.IsMatch(command, @"^\s*Cycle\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
+        yield return null;
+        AlphabeticalRuling = 0;
+        Parkinsons[0].OnInteract();
+        yield break;
+      }
+      command.Trim();
+      string[] parameters = command.Split(' ');
+      if (Regex.IsMatch(parameters[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
+        yield return null;
+        for (int i = 0; i < parameters[1].Length; i++) {
+          for (int j = 0; j < 10; j++) {
+            if (parameters[1][i].ToString() == j.ToString()) {
+              GonzoPornography[j].OnInteract();
+            }
+          }
+        }
+        Parkinsons[1].OnInteract();
       }
     }
 }
