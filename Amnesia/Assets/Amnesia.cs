@@ -30,7 +30,7 @@ public class Amnesia : MonoBehaviour {
     bool PigpenRotations = false;
     string[] StickyNotes = {"blue","green","orange","red"};
     bool Binary = true;
-    //bool Addition = false;
+    int Addition = 0;
     private List<int> GoofysGame = new List<int>{};
     static int moduleIdCounter = 1;
     int moduleId;
@@ -65,7 +65,6 @@ public class Amnesia : MonoBehaviour {
     void SueetWallPress(KMSelectable SueetWall){
       SueetWall.AddInteractionPunch();
       Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, SueetWall.transform);
-      Debug.Log(Binary);
       if (SueetWall == Parkinsons[0] && SimonForgets == true && Binary == true && AlphabeticalRuling == 0) {
         StartCoroutine(NeedlesslyComplicatedButton());
         Binary = false;
@@ -196,6 +195,11 @@ public class Amnesia : MonoBehaviour {
           for (int j = 0; j < 10; j++) {
             if (parameters[1][i].ToString() == j.ToString()) {
               GonzoPornography[j].OnInteract();
+              Addition = 0;
+              for (int ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo = 0; ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo < 4; ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo++) {
+                Addition += Pressure[ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo];
+              }
+              yield return "awardpointsonsolve " + Addition;
             }
           }
         }
