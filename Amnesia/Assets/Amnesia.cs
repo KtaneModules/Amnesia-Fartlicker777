@@ -4,206 +4,222 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using KModkit;
 
 public class Amnesia : MonoBehaviour {
 
-    public KMBombInfo Bomb;
-    public KMAudio Audio;
-    public KMSelectable[] GonzoPornography;
-    public KMSelectable[] Parkinsons;
-    public Material[] Romping;
-    public GameObject TimingIsEverything;
-    public GameObject PercentGrey;
+   public KMBombInfo Bomb;
+   public KMAudio Audio;
 
-    int LunchTime = 0;
-    float CrazyTalkWithAK = 0;
-    int TheArena = 0;
-    int[] Pressure = {0,0,0,0}; //BLUE GREEN ORANGE RED
-    bool SimonForgets = false;
-    int DirectionalButton = 0;
-    int OmegaForget = 5;
-    bool[] CookieClicker = {false,false,false,false};
-    bool[] QRCode = {false,false,false,false};
-    int AlphabeticalRuling = 0;
-    bool MinecraftSurvival = false;
-    bool PigpenRotations = false;
-    string[] StickyNotes = {"blue","green","orange","red"};
-    bool Binary = true;
-    int Addition = 0;
-    private List<int> GoofysGame = new List<int>{};
-    static int moduleIdCounter = 1;
-    int moduleId;
-    private bool moduleSolved;
+   public KMSelectable[] GonzoPornography;
+   public KMSelectable[] Parkinsons;
 
-    void Awake () {
-        moduleId = moduleIdCounter++;
+   public Material[] ColorMats;
 
-        foreach (KMSelectable Ryan in GonzoPornography) {
-            Ryan.OnInteract += delegate () { RyanPress(Ryan); return false; };
-        }
-        foreach (KMSelectable SueetWall in Parkinsons) {
-            SueetWall.OnInteract += delegate () { SueetWallPress(SueetWall); return false; };
-        }
-    }
+   public GameObject MainScreen;
+   public GameObject SmallScreen;
 
-    void Start() {
-      CrazyTalkWithAK = Bomb.GetTime();
-    }
+   int[] ColorAmounts = new int[4]; //BLUE GREEN ORANGE RED
+   private List<int> ColorsInOrder = new List<int> { };
+   int CurrentColor;
+   int PreviousColor = 5;
+   int SolvedMods;
+   int SubmissionInput;
+   int TotalMods;
 
-    void RyanPress(KMSelectable Ryan){
-      Ryan.AddInteractionPunch();
-      Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, Ryan.transform);
+   float StartingTime;
+
+   static readonly string[] ColorsForLogging = { "blue", "green", "orange", "red" };
+
+   bool[] PreviousSelectedColorsForSubmission = new bool[4];
+   bool[] SelectedColorForSubmission = new bool[4];
+   bool AreAllColorsChosen = true;
+   bool IsSolvable;
+   bool StageDelay;
+
+   static int moduleIdCounter = 1;
+   int moduleId;
+   private bool moduleSolved;
+
+   void Awake () {
+      moduleId = moduleIdCounter++;
+
+      foreach (KMSelectable Button in GonzoPornography) {
+         Button.OnInteract += delegate () { ButtonPress(Button); return false; };
+      }
+      foreach (KMSelectable Button in Parkinsons) {
+         Button.OnInteract += delegate () { NotNumericalPress(Button); return false; };
+      }
+
+      GetComponent<KMBombModule>().OnActivate += Activate;
+   }
+
+   void Activate () {
+      StartingTime = Bomb.GetTime();
+   }
+
+   void ButtonPress (KMSelectable Button) {
+      if (moduleSolved) {
+         Audio.PlaySoundAtTransform("M", transform);
+      }
+      Button.AddInteractionPunch();
+      Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, Button.transform);
       for (int i = 0; i < 10; i++) {
-        if (Ryan == GonzoPornography[i] && SimonForgets == true) {
-          AlphabeticalRuling *= 10;
-          AlphabeticalRuling += i;
-        }
+         if (Button == GonzoPornography[i] && IsSolvable) {
+            SubmissionInput *= 10;
+            SubmissionInput += i;
+         }
       }
-    }
+   }
 
-    void SueetWallPress(KMSelectable SueetWall){
-      SueetWall.AddInteractionPunch();
-      Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, SueetWall.transform);
-      if (SueetWall == Parkinsons[0] && SimonForgets == true && Binary == true && AlphabeticalRuling == 0) {
-        StartCoroutine(NeedlesslyComplicatedButton());
-        Binary = false;
+   void NotNumericalPress (KMSelectable Button) {
+      Button.AddInteractionPunch();
+      Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, Button.transform);
+      if (Button == Parkinsons[0] && IsSolvable && AreAllColorsChosen && SubmissionInput == 0) {
+         StartCoroutine(StrikeFlash());
+         AreAllColorsChosen = false;
       }
-      else if (SueetWall == Parkinsons[0] && SimonForgets == true) {//<
-        AlphabeticalRuling = (AlphabeticalRuling - (AlphabeticalRuling % 10));
-        AlphabeticalRuling /= 10;
+      else if (Button == Parkinsons[0] && IsSolvable) {//<
+         SubmissionInput = (SubmissionInput - (SubmissionInput % 10)) / 10;
       }
-      else if (SueetWall == Parkinsons[1] && SimonForgets == true) {//S
-        Binary = false;
-        for (int i = 0; i < 4; i++) {
-          if (AlphabeticalRuling == Pressure[i] && QRCode[i] == true) {
-            PigpenRotations = true;
-          }
-        }
-        if (PigpenRotations == true) {
-          Audio.PlaySoundAtTransform("N", transform);
-          GetComponent<KMBombModule>().HandlePass();
-          Debug.LogFormat("[Amnesia #{0}] You submitted the correct number. Module disarmed.", moduleId);
-        }
-        else {
-          GetComponent<KMBombModule>().HandleStrike();
-          Debug.LogFormat("[Amnesia #{0}] You submitted {1}. Strike.", moduleId, AlphabeticalRuling);
-          AlphabeticalRuling = 0;
-          Alchemy();
-        }
-      }
-    }
-
-    void Alchemy(){
-      SimonForgets = true;
-      DirectionalButton = UnityEngine.Random.Range(0,4);
-      Binary = true;
-      for (int i = 0; i < 4; i++) {
-        if (CookieClicker[i] == false) {
-          Binary = false;
-        }
-      }
-      if (Binary == true) {
-        for (int j = 0; j < 4; j++) {
-          CookieClicker[j] = false;
-        }
-      }
-      while (CookieClicker[DirectionalButton] == true) {
-        DirectionalButton = UnityEngine.Random.Range(0,4);
-      }
-      for (int i = 0; i < 4; i++) {
-        QRCode[i] = false;
-      }
-      Debug.LogFormat("[Amnesia #{0}] It shows color {1}. Input {2}.", moduleId, StickyNotes[DirectionalButton], Pressure[DirectionalButton]);
-      PercentGrey.GetComponent<MeshRenderer>().material = Romping[DirectionalButton];
-      CookieClicker[DirectionalButton] = true;
-      QRCode[DirectionalButton] = true;
-    }
-
-    void Update() {
-      if (SimonForgets == true) {
-        return;
-      }
-      LunchTime = Bomb.GetSolvableModuleNames().Count;
-      TheArena = Bomb.GetSolvedModuleNames().Count;
-      if (LunchTime == 1) {
-        GetComponent<KMBombModule>().HandlePass();
-      }
-      if (Bomb.GetTime() * 4 <= CrazyTalkWithAK || TheArena * 2 >= LunchTime) {
-        Alchemy();
-      }
-      else if ((int)Math.Floor(Bomb.GetTime()) % 60 == 0 && MinecraftSurvival == false && Bomb.GetTime() != CrazyTalkWithAK) {
-        StartCoroutine(MinecraftParody());
-        DirectionalButton = UnityEngine.Random.Range(0,4);
-        while (DirectionalButton == OmegaForget) {
-          DirectionalButton = UnityEngine.Random.Range(0,4);
-        }
-        OmegaForget = DirectionalButton;
-        GoofysGame.Add(DirectionalButton);
-        Audio.PlaySoundAtTransform("M", transform);
-        switch (DirectionalButton) {
-          case 0:
-          Pressure[0] += 1;
-          Debug.LogFormat("[Amnesia #{0}] Blue has now flashed {1} time(s).", moduleId, Pressure[0]);
-          TimingIsEverything.GetComponent<MeshRenderer>().material = Romping[0];
-          break;
-          case 1:
-          Pressure[1] += 1;
-          Debug.LogFormat("[Amnesia #{0}] Green has now flashed {1} time(s).", moduleId, Pressure[1]);
-          TimingIsEverything.GetComponent<MeshRenderer>().material = Romping[1];
-          break;
-          case 2:
-          Pressure[2] += 1;
-          Debug.LogFormat("[Amnesia #{0}] Orange has now flashed {1} time(s).", moduleId, Pressure[2]);
-          TimingIsEverything.GetComponent<MeshRenderer>().material = Romping[2];
-          break;
-          case 3:
-          Pressure[3] += 1;
-          Debug.LogFormat("[Amnesia #{0}] Red has now flashed {1} time(s).", moduleId, Pressure[3]);
-          TimingIsEverything.GetComponent<MeshRenderer>().material = Romping[3];
-          break;
-        }
-      }
-    }
-    IEnumerator MinecraftParody(){
-      MinecraftSurvival = true;
-      yield return new WaitForSeconds(1f);
-      MinecraftSurvival = false;
-    }
-    IEnumerator NeedlesslyComplicatedButton(){
-      for (int i = 0; i < GoofysGame.Count(); i++) {
-        TimingIsEverything.GetComponent<MeshRenderer>().material = Romping[GoofysGame[i]];
-        yield return new WaitForSecondsRealtime(.33f);
-      }
-    }
-    //I add the twitch play
-    #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"!{0} submit 123 to submit 123. Do !{0} cycle to cycle stages (only when you have struck four times).";
-    #pragma warning restore 414
-    IEnumerator ProcessTwitchCommand(string command){
-      if (Regex.IsMatch(command, @"^\s*Cycle\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
-        yield return null;
-        AlphabeticalRuling = 0;
-        Parkinsons[0].OnInteract();
-        yield break;
-      }
-      command.Trim();
-      string[] parameters = command.Split(' ');
-      if (Regex.IsMatch(parameters[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
-        yield return null;
-        for (int i = 0; i < parameters[1].Length; i++) {
-          for (int j = 0; j < 10; j++) {
-            if (parameters[1][i].ToString() == j.ToString()) {
-              GonzoPornography[j].OnInteract();
-              Addition = 0;
-              for (int ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo = 0; ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo < 4; ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo++) {
-                Addition += Pressure[ImnotgonnaletthisbattlebedictatedbyfactsImrichIvegotfatstacksandsuperPACsWeallknowwhatwentdowninthat2008electionYoureadecentpoliticianwithawinningcomplexionYoureallBarackandnobiteBeennochangeandwereallstillhopingThatyoullshutyourmouthbutlikeGuantanamoBaytheyrebothopenYourefromtheWindyCitywhereyourelookingprettywithyourblowhardsButcomeJanuaryyoullbeleftevictedandwithnojobRawrhymesstrongerthanmyjawlinewhenIspitaphraseKnockingyouharderthanfrontdoorsinmyoldmissiondaysYouseethissilverspoonThisdugMassouttadebtToo];
-              }
-              yield return "awardpointsonsolve " + Addition;
+      else if (Button == Parkinsons[1] && IsSolvable) {//S
+         AreAllColorsChosen = false;
+         for (int i = 0; i < 4; i++) {
+            if (SubmissionInput == ColorAmounts[i] && SelectedColorForSubmission[i]) {
+               Audio.PlaySoundAtTransform("N", transform);
+               GetComponent<KMBombModule>().HandlePass();
+               Debug.LogFormat("[Amnesia #{0}] You submitted the correct number. Module disarmed.", moduleId);
+               moduleSolved = true;
+               return;
             }
-          }
-        }
-        Parkinsons[1].OnInteract();
+         }
+         GetComponent<KMBombModule>().HandleStrike();
+         Debug.LogFormat("[Amnesia #{0}] You submitted {1}. Strike.", moduleId, SubmissionInput);
+         SubmissionInput = 0;
+         SubmissionColorChooser();
       }
-    }
+   }
+
+   void SubmissionColorChooser () {
+      IsSolvable = true;
+      CurrentColor = UnityEngine.Random.Range(0, 4);
+      AreAllColorsChosen = true;
+      for (int i = 0; i < 4; i++) {
+         if (!PreviousSelectedColorsForSubmission[i]) {
+            AreAllColorsChosen = false;
+         }
+      }
+      if (AreAllColorsChosen) {
+         for (int j = 0; j < 4; j++) {
+            PreviousSelectedColorsForSubmission[j] = false;
+         }
+      }
+      while (PreviousSelectedColorsForSubmission[CurrentColor]) {
+         CurrentColor = UnityEngine.Random.Range(0, 4);
+      }
+      for (int i = 0; i < 4; i++) {
+         SelectedColorForSubmission[i] = false;
+      }
+      Debug.LogFormat("[Amnesia #{0}] It shows color {1}. Input {2}.", moduleId, ColorsForLogging[CurrentColor], ColorAmounts[CurrentColor]);
+      SmallScreen.GetComponent<MeshRenderer>().material = ColorMats[CurrentColor];
+      PreviousSelectedColorsForSubmission[CurrentColor] = true;
+      SelectedColorForSubmission[CurrentColor] = true;
+   }
+
+   void Update () {
+      if (IsSolvable) {
+         return;
+      }
+      TotalMods = Bomb.GetSolvableModuleNames().Count;
+      SolvedMods = Bomb.GetSolvedModuleNames().Count;
+      if (TotalMods == 1) {
+         GetComponent<KMBombModule>().HandlePass();
+      }
+      if (Bomb.GetTime() * 4 <= StartingTime || SolvedMods * 2 >= TotalMods) {
+         SubmissionColorChooser();
+      }
+      else if ((int) Math.Floor(Bomb.GetTime()) % 60 == 0 && !StageDelay && Bomb.GetTime() != StartingTime) {
+         StartCoroutine(WaitForMinuteToPass());
+         CurrentColor = UnityEngine.Random.Range(0, 4);
+         while (CurrentColor == PreviousColor) {
+            CurrentColor = UnityEngine.Random.Range(0, 4);
+         }
+         PreviousColor = CurrentColor;
+         ColorsInOrder.Add(CurrentColor);
+         Audio.PlaySoundAtTransform("M", transform);
+         switch (CurrentColor) {
+            case 0:
+               ColorAmounts[0]++;
+               Debug.LogFormat("[Amnesia #{0}] Blue has now flashed {1} time(s). Current time is {2} minutes.", moduleId, ColorAmounts[0], Bomb.GetTime() / 60);
+               MainScreen.GetComponent<MeshRenderer>().material = ColorMats[0];
+               break;
+            case 1:
+               ColorAmounts[1]++;
+               Debug.LogFormat("[Amnesia #{0}] Green has now flashed {1} time(s). Current time is {2} minutes.", moduleId, ColorAmounts[1], Bomb.GetTime() / 60);
+               MainScreen.GetComponent<MeshRenderer>().material = ColorMats[1];
+               break;
+            case 2:
+               ColorAmounts[2]++;
+               Debug.LogFormat("[Amnesia #{0}] Orange has now flashed {1} time(s). Current time is {2} minutes.", moduleId, ColorAmounts[2], Bomb.GetTime() / 60);
+               MainScreen.GetComponent<MeshRenderer>().material = ColorMats[2];
+               break;
+            case 3:
+               ColorAmounts[3]++;
+               Debug.LogFormat("[Amnesia #{0}] Red has now flashed {1} time(s). Current time is {2} minutes.", moduleId, ColorAmounts[3], Bomb.GetTime() / 60);
+               MainScreen.GetComponent<MeshRenderer>().material = ColorMats[3];
+               break;
+         }
+      }
+   }
+
+   IEnumerator WaitForMinuteToPass () {
+      StageDelay = true;
+      yield return new WaitForSecondsRealtime(2f);
+      StageDelay = false;
+   }
+
+   IEnumerator StrikeFlash () {
+      for (int i = 0; i < ColorsInOrder.Count(); i++) {
+         MainScreen.GetComponent<MeshRenderer>().material = ColorMats[ColorsInOrder[i]];
+         yield return new WaitForSecondsRealtime(.33f);
+      }
+   }
+
+   //I add the twitch play
+#pragma warning disable 414
+   private readonly string TwitchHelpMessage = @"!{0} submit 123 to submit 123. Do !{0} cycle to cycle stages (only when you have struck four times).";
+#pragma warning restore 414
+
+   IEnumerator ProcessTwitchCommand (string Command) {
+      yield return null;
+      Command.Trim();
+      if (Regex.IsMatch(Command, @"^\s*Cycle\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
+         SubmissionInput = 0;
+         Parkinsons[0].OnInteract();
+         yield break;
+      }
+      string[] parameters = Command.Split(' ');
+      if (Regex.IsMatch(parameters[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
+         for (int i = 0; i < parameters[1].Length; i++) {
+            for (int j = 0; j < 10; j++) {
+               if (parameters[1][i].ToString() == j.ToString()) {
+                  GonzoPornography[j].OnInteract();
+                  int TPPoints = (int) Math.Ceiling((float) ColorsInOrder.Count() / 2);
+                  yield return "awardpointsonsolve " + TPPoints;
+               }
+            }
+         }
+         Parkinsons[1].OnInteract();
+      }
+   }
+
+   IEnumerator TwitchHandleForcedSolve () {
+      while (!IsSolvable) {
+         yield return true;
+      }
+      for (int i = 0; i < 4; i++) {
+         if (SelectedColorForSubmission[i]) {
+            yield return ProcessTwitchCommand(ColorAmounts[i].ToString());
+         }
+      }
+   }
 }
