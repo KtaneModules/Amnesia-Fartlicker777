@@ -49,11 +49,9 @@ public class Amnesia : MonoBehaviour {
       foreach (KMSelectable Button in Parkinsons) {
          Button.OnInteract += delegate () { NotNumericalPress(Button); return false; };
       }
-
-      GetComponent<KMBombModule>().OnActivate += Activate;
    }
 
-   void Activate () {
+   void Start () {
       StartingTime = Bomb.GetTime();
    }
 
