@@ -190,7 +190,7 @@ public class Amnesia : MonoBehaviour {
    IEnumerator ProcessTwitchCommand (string Command) {
       yield return null;
       Command.Trim();
-      if (Regex.IsMatch(Command, @"^\s*Cycle\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
+      if (Regex.IsMatch(Command, @"^\s*cycle\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) {
          SubmissionInput = 0;
          Parkinsons[0].OnInteract();
          yield break;
@@ -201,11 +201,12 @@ public class Amnesia : MonoBehaviour {
             for (int j = 0; j < 10; j++) {
                if (parameters[1][i].ToString() == j.ToString()) {
                   GonzoPornography[j].OnInteract();
-                  int TPPoints = (int) Math.Ceiling((float) ColorsInOrder.Count() / 2);
-                  yield return "awardpointsonsolve " + TPPoints;
+                  yield return new WaitForSecondsRealtime(.1f);
                }
             }
          }
+         int TPPoints = (int)Math.Ceiling((float)ColorsInOrder.Count() / 2);
+         yield return "awardpointsonsolve " + TPPoints;
          Parkinsons[1].OnInteract();
       }
    }
@@ -216,7 +217,7 @@ public class Amnesia : MonoBehaviour {
       }
       for (int i = 0; i < 4; i++) {
          if (SelectedColorForSubmission[i]) {
-            yield return ProcessTwitchCommand(ColorAmounts[i].ToString());
+            yield return ProcessTwitchCommand("submit " + ColorAmounts[i].ToString());
          }
       }
    }
